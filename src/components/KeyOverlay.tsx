@@ -11,6 +11,8 @@ import KeyChip from "./KeyChip";
 export default function KeyOverlay() {
   const keys = useKeyEvents();
 
+  if (keys.length === 0) return null;
+
   return (
     <div data-tauri-drag-region style={wrapperStyle}>
       {keys.map((k) => (
@@ -21,13 +23,12 @@ export default function KeyOverlay() {
 }
 
 const wrapperStyle: CSSProperties = {
-  display: "flex",
+  display: "inline-flex",
   flexDirection: "row",
   alignItems: "center",
-  gap: "8px",
-  padding: "12px 16px",
-  width: "100%",
-  height: "100%",
+  justifyContent: "center",
+  padding: "10px 18px",
+  minWidth: "0",
   cursor: "move",
   background: "rgba(18, 18, 22, 0.82)",
   backdropFilter: "blur(12px)",

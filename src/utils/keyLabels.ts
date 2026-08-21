@@ -29,8 +29,13 @@ export const KEY_LABELS: Record<string, string> = {
   KEY_CAPSLOCK: "Caps",
   KEY_NUMLOCK: "NumLk",
   KEY_SCROLLLOCK: "ScrLk",
+  // El backend usa el nombre evdev real (KeyCode::KEY_PRINT), no
+  // "KEY_PRINTSCREEN" — se mapean ambos por si alguna fuente cambia.
+  KEY_PRINT: "PrtSc",
   KEY_PRINTSCREEN: "PrtSc",
+  KEY_SYSRQ: "PrtSc",
   KEY_PAUSE: "Pause",
+  KEY_KPENTER: "Enter",
 
   // Flechas
   KEY_UP: "↑",
@@ -52,4 +57,24 @@ export function formatKeyLabel(raw: string): string {
     return name.length === 1 ? name.toUpperCase() : name;
   }
   return raw;
+}
+
+/**
+ * Separador interno usado por el backend entre partes de una combinación
+ * (Unit Separator, U+001F). No puede colisionar con un símbolo real de
+ * tecla, a diferencia de "+" (que sí es una tecla legítima, ej. Shift+=).
+ */
+const SEPARADOR_COMBO = String.fromCharCode(0x1f);
+
+/**
+ * Formatea un combo emitido por el backend, ej. "Ctrl<SEP>Shift<SEP>KEY_K".
+ * Los modificadores ya vienen legibles (Ctrl, Shift, Super, Alt, AltGr);
+ * solo la última parte puede ser un código evdev crudo a formatear, o un
+ * símbolo ya traducido por xkb (puede ser literalmente "+").
+ */
+export function formatCombo(raw: string): string {
+  const partes = raw.split(SEPARADOR_COMBO);
+  return partes
+    .map((parte) => (parte.startsWith("KEY_") ? formatKeyLabel(parte) : parte))
+    .join(" + ");
 }

@@ -12,3 +12,9 @@ html, body, #root {
   user-select: none;
   -webkit-user-select: none;
 }
+
+#root {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}

@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
-import { formatKeyLabel } from "../utils/keyLabels";
+import { formatCombo } from "../utils/keyLabels";
 
 export interface KeyEntry {
   id: number;
   label: string;
 }
 
-const MAX_KEYS = 6;
-const CLEAR_DELAY_MS = 2500;
+const CLEAR_DELAY_MS = 1200;
 let nextId = 0;
 
 /**
- * Hook que escucha el evento "key-event" de Tauri y mantiene
- * un historial de las últimas teclas presionadas.
- * Las teclas se limpian automáticamente después de CLEAR_DELAY_MS
+ * Hook que escucha el evento "key-event" de Tauri.
+ * El backend ya emite la combinación completa (ej. "Ctrl+Shift+KEY_K"),
+ * por lo que solo se muestra el último combo recibido, no un historial.
+ * El combo se limpia automáticamente después de CLEAR_DELAY_MS
  * milisegundos sin actividad.
  */
 export function useKeyEvents(): KeyEntry[] {
@@ -28,8 +28,9 @@ export function useKeyEvents(): KeyEntry[] {
 
   useEffect(() => {
     const unlistenPromise = listen<string>("key-event", (event) => {
-      const label = formatKeyLabel(event.payload);
-      setKeys((prev) => [...prev, { id: nextId++, label }].slice(-MAX_KEYS));
+      if (!event.payload) return;
+      const label = formatCombo(event.payload);
+      setKeys([{ id: nextId++, label }]);
       resetClearTimer();
     });
 

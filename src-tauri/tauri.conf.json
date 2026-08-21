@@ -13,13 +13,16 @@
     "windows": [
       {
         "title": "keyviz-overlay",
-        "width": 520,
-        "height": 90,
+        "width": 360,
+        "height": 72,
         "transparent": true,
         "decorations": false,
         "alwaysOnTop": true,
         "resizable": false,
-        "shadow": false
+        "shadow": false,
+        "visible": false,
+        "skipTaskbar": true,
+        "focus": false
       }
     ],
     "security": {
