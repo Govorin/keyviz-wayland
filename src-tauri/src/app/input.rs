@@ -17,6 +17,34 @@ fn es_teclado(dev: &Device) -> bool {
         .unwrap_or(false)
 }
 
+/// Nombre del dispositivo virtual que crea keyd (https://github.com/rvaiya/keyd)
+/// al remapear teclas a nivel de evdev, antes de que lleguen al compositor.
+const NOMBRE_DISPOSITIVO_KEYD: &str = "keyd virtual keyboard";
+
+/// Si keyd está activo, sus remaps (ej. Super+S -> Ctrl+S) generan DOS
+/// flujos de eventos para la misma pulsación física: el teclado físico
+/// (evento crudo, sin remapear) y el dispositivo virtual de keyd (ya
+/// remapeado). Escuchar ambos a la vez mezcla sus estados de modificador
+/// en un combo incoherente. Por eso, si existe el dispositivo virtual de
+/// keyd, se listan solo los teclados físicos que él consume (para
+/// filtrarlos) y se usa el virtual como única fuente de verdad: así el
+/// overlay refleja lo que realmente llega a las aplicaciones, no lo que
+/// el usuario presionó físicamente.
+fn filtrar_dispositivos_para_keyd(dispositivos: Vec<Device>) -> Vec<Device> {
+    let hay_keyd = dispositivos
+        .iter()
+        .any(|d| d.name() == Some(NOMBRE_DISPOSITIVO_KEYD));
+
+    if !hay_keyd {
+        return dispositivos;
+    }
+
+    dispositivos
+        .into_iter()
+        .filter(|d| d.name() == Some(NOMBRE_DISPOSITIVO_KEYD))
+        .collect()
+}
+
 /// Lee el estado real del LED de Bloq Mayús del dispositivo al arrancar,
 /// en vez de asumir que siempre está apagado.
 fn caps_lock_inicial(dev: &Device) -> bool {
@@ -52,6 +80,7 @@ pub fn iniciar_captura(app: AppHandle) {
             .map(|(_, d)| d)
             .filter(es_teclado)
             .collect();
+        let dispositivos = filtrar_dispositivos_para_keyd(dispositivos);
 
         for mut dev in dispositivos {
             let app = app.clone();
