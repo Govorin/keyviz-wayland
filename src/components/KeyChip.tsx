@@ -15,8 +15,16 @@ export default function KeyChip({ partes }: KeyChipProps) {
   return (
     <span style={chipStyle}>
       {partes.map((parte, i) => (
-        <span key={i} style={parteStyle}>
-          {i > 0 && <span style={separadorStyle}>+</span>}
+        // El "+" es un elemento hermano más de la lista, no algo anidado
+        // dentro de la parte siguiente: así el `gap` del contenedor le da
+        // el mismo espacio a ambos lados, en vez de quedar pegado a un
+        // lado y separado del otro.
+        <span key={`${i}-contenido`} style={{ display: "inline-flex" }}>
+          {i > 0 && (
+            <span key={`${i}-sep`} style={separadorStyle}>
+              +
+            </span>
+          )}
           {tieneIcono(parte) ? <KeyIcon label={parte} /> : parte}
         </span>
       ))}
@@ -24,22 +32,17 @@ export default function KeyChip({ partes }: KeyChipProps) {
   );
 }
 
-const parteStyle: CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "8px",
-};
-
 const separadorStyle: CSSProperties = {
   opacity: 0.5,
-  marginRight: "8px",
   fontSize: "0.9em",
+  marginRight: "8px",
 };
 
 const chipStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   justifyContent: "center",
+  gap: "8px",
   minWidth: "40px",
   height: "52px",
   padding: "0 14px",

@@ -50,8 +50,8 @@ function TabIcon({ size }: IconProps) {
 function EscIcon({ size }: IconProps) {
   return (
     <svg {...base} width={size} height={size}>
-      <path d="M5 5h6M5 5v10M5 10h5M5 15h6" />
-      <path d="M13 6.5 16 10l-3 3.5" />
+      <circle cx="10" cy="10" r="7" />
+      <path d="M7.5 7.5 12.5 12.5M12.5 7.5 7.5 12.5" />
     </svg>
   );
 }
@@ -112,7 +112,7 @@ function ArrowRightIcon({ size }: IconProps) {
   );
 }
 
-/** Mapa etiqueta legible → componente de icono. */
+/** Mapa etiqueta legible → componente de icono SVG. */
 const ICONS: Record<string, (props: IconProps) => JSX.Element> = {
   Enter: EnterIcon,
   "⌫": BackspaceIcon,
@@ -127,13 +127,29 @@ const ICONS: Record<string, (props: IconProps) => JSX.Element> = {
   "→": ArrowRightIcon,
 };
 
-/** true si existe un icono para esta etiqueta ya formateada. */
+/**
+ * Modificadores sin icono SVG propio: se usan los glifos Unicode
+ * estándar de macOS (⌃⌥⌘), reconocidos también fuera de ese ecosistema
+ * en la mayoría de overlays de teclado para streaming. AltGr no tiene
+ * un glifo universalmente reconocido, así que se deja como texto.
+ */
+const GLIFOS_TEXTO: Record<string, string> = {
+  Ctrl: "⌃",
+  Alt: "⌥",
+  Super: "⌘",
+};
+
+/** true si existe un icono (SVG o glifo de texto) para esta etiqueta. */
 export function tieneIcono(label: string): boolean {
-  return label in ICONS;
+  return label in ICONS || label in GLIFOS_TEXTO;
 }
 
 export default function KeyIcon({ label, size = 22 }: { label: string; size?: number }) {
   const Icono = ICONS[label];
-  if (!Icono) return null;
-  return <Icono size={size} />;
+  if (Icono) return <Icono size={size} />;
+
+  const glifo = GLIFOS_TEXTO[label];
+  if (glifo) return <span style={{ fontSize: size, lineHeight: 1 }}>{glifo}</span>;
+
+  return null;
 }
