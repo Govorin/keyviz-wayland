@@ -112,10 +112,18 @@ impl XkbTranslator {
         );
 
         let utf8 = state.key_get_utf8(keycode);
-        if utf8.is_empty() {
-            None
-        } else {
+
+        // Teclas como Enter o Tab producen un carácter de control real
+        // (ej. "\r", "\t"), no una cadena vacía — key_get_utf8() no las
+        // filtra por sí solo. Cualquier resultado compuesto solo por
+        // caracteres de control (< 0x20, o DEL 0x7F) se descarta para
+        // que esas teclas caigan al nombre físico (KEY_ENTER, KEY_TAB...).
+        let es_imprimible = !utf8.is_empty() && utf8.chars().any(|c| c != '\u{7f}' && c as u32 >= 0x20);
+
+        if es_imprimible {
             Some(utf8)
+        } else {
+            None
         }
     }
 
