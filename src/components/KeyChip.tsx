@@ -1,16 +1,40 @@
 import type { CSSProperties } from "react";
+import KeyIcon, { tieneIcono } from "./KeyIcon";
 
 interface KeyChipProps {
-  label: string;
+  partes: string[];
 }
 
 /**
- * Chip visual para una tecla individual.
- * Recibe solo el label ya formateado y se encarga únicamente del render.
+ * Chip visual para una combinación de teclas. Cada parte (Ctrl, Shift,
+ * K...) se separa con " + ", salvo que tenga icono propio (Enter,
+ * Backspace, flechas...), en cuyo caso se muestra solo el icono, sin
+ * texto — como en la mayoría de overlays de teclas para streaming.
  */
-export default function KeyChip({ label }: KeyChipProps) {
-  return <span style={chipStyle}>{label}</span>;
+export default function KeyChip({ partes }: KeyChipProps) {
+  return (
+    <span style={chipStyle}>
+      {partes.map((parte, i) => (
+        <span key={i} style={parteStyle}>
+          {i > 0 && <span style={separadorStyle}>+</span>}
+          {tieneIcono(parte) ? <KeyIcon label={parte} /> : parte}
+        </span>
+      ))}
+    </span>
+  );
 }
+
+const parteStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "8px",
+};
+
+const separadorStyle: CSSProperties = {
+  opacity: 0.5,
+  marginRight: "8px",
+  fontSize: "0.9em",
+};
 
 const chipStyle: CSSProperties = {
   display: "inline-flex",

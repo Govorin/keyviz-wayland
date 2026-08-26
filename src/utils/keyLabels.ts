@@ -67,14 +67,15 @@ export function formatKeyLabel(raw: string): string {
 const SEPARADOR_COMBO = String.fromCharCode(0x1f);
 
 /**
- * Formatea un combo emitido por el backend, ej. "Ctrl<SEP>Shift<SEP>KEY_K".
- * Los modificadores ya vienen legibles (Ctrl, Shift, Super, Alt, AltGr);
- * solo la última parte puede ser un código evdev crudo a formatear, o un
- * símbolo ya traducido por xkb (puede ser literalmente "+").
+ * Formatea un combo emitido por el backend, ej. "Ctrl<SEP>Shift<SEP>KEY_K",
+ * devolviendo cada parte ya formateada por separado (en vez de una sola
+ * cadena unida) para que el frontend pueda sustituir cualquier parte por
+ * un icono. Los modificadores ya vienen legibles (Ctrl, Shift, Super,
+ * Alt, AltGr); solo la última parte puede ser un código evdev crudo a
+ * formatear, o un símbolo ya traducido por xkb (puede ser literalmente "+").
  */
-export function formatCombo(raw: string): string {
-  const partes = raw.split(SEPARADOR_COMBO);
-  return partes
-    .map((parte) => (parte.startsWith("KEY_") ? formatKeyLabel(parte) : parte))
-    .join(" + ");
+export function formatCombo(raw: string): string[] {
+  return raw
+    .split(SEPARADOR_COMBO)
+    .map((parte) => (parte.startsWith("KEY_") ? formatKeyLabel(parte) : parte));
 }

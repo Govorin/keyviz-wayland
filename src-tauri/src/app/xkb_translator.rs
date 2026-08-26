@@ -115,10 +115,12 @@ impl XkbTranslator {
 
         // Teclas como Enter o Tab producen un carácter de control real
         // (ej. "\r", "\t"), no una cadena vacía — key_get_utf8() no las
-        // filtra por sí solo. Cualquier resultado compuesto solo por
-        // caracteres de control (< 0x20, o DEL 0x7F) se descarta para
-        // que esas teclas caigan al nombre físico (KEY_ENTER, KEY_TAB...).
-        let es_imprimible = !utf8.is_empty() && utf8.chars().any(|c| c != '\u{7f}' && c as u32 >= 0x20);
+        // filtra por sí solo. El espacio (0x20) sí es "imprimible" para
+        // xkb, pero un chip que solo contiene " " se ve vacío en pantalla
+        // (colapsado por el navegador), así que también se excluye para
+        // caer al nombre físico (KEY_SPACE → "Space"). Cualquier resultado
+        // compuesto solo por estos caracteres se descarta.
+        let es_imprimible = !utf8.is_empty() && utf8.chars().any(|c| !matches!(c, '\u{7f}' | ' ') && c as u32 >= 0x20);
 
         if es_imprimible {
             Some(utf8)

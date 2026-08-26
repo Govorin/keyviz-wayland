@@ -16,7 +16,7 @@ export default function KeyOverlay() {
   return (
     <div data-tauri-drag-region style={wrapperStyle}>
       {keys.map((k) => (
-        <KeyChip key={k.id} label={k.label} />
+        <KeyChip key={k.id} partes={k.partes} />
       ))}
     </div>
   );

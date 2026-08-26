@@ -4,7 +4,7 @@ import { formatCombo } from "../utils/keyLabels";
 
 export interface KeyEntry {
   id: number;
-  label: string;
+  partes: string[];
 }
 
 const CLEAR_DELAY_MS = 1200;
@@ -29,8 +29,8 @@ export function useKeyEvents(): KeyEntry[] {
   useEffect(() => {
     const unlistenPromise = listen<string>("key-event", (event) => {
       if (!event.payload) return;
-      const label = formatCombo(event.payload);
-      setKeys([{ id: nextId++, label }]);
+      const partes = formatCombo(event.payload);
+      setKeys([{ id: nextId++, partes }]);
       resetClearTimer();
     });
 
